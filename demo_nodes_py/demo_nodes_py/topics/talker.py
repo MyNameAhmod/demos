@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+from num2words import num2words
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -30,8 +32,9 @@ class Talker(Node):
 
     def timer_callback(self):
         msg = String()
-        msg.data = 'Hello World: {0}'.format(self.i)
         self.i += 1
+        new = num2words(self.i) 
+        msg.data = 'Hello World:{0} '.format(new)
         self.get_logger().info('Publishing: "{0}"'.format(msg.data))
         self.pub.publish(msg)
 
@@ -43,8 +46,10 @@ def main(args=None):
 
     try:
         rclpy.spin(node)
-    except (KeyboardInterrupt, ExternalShutdownException):
+    except KeyboardInterrupt:
         pass
+    except ExternalShutdownException:
+        sys.exit(1)
     finally:
         node.destroy_node()
         rclpy.try_shutdown()
