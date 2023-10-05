@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+from word2number import w2n
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -26,7 +28,9 @@ class Listener(Node):
         self.sub = self.create_subscription(String, 'chatter', self.chatter_callback, 10)
 
     def chatter_callback(self, msg):
-        self.get_logger().info('I heard: [%s]' % msg.data)
+        x,y = msg.data.split(":") 
+        new = w2n.word_to_num(y)
+        self.get_logger().info('Ahmod Riddick heard: [ %s %d]' % (x,new))
 
 
 def main(args=None):
@@ -35,8 +39,10 @@ def main(args=None):
     node = Listener()
     try:
         rclpy.spin(node)
-    except (KeyboardInterrupt, ExternalShutdownException):
+    except KeyboardInterrupt:
         pass
+    except ExternalShutdownException:
+        sys.exit(1)
     finally:
         node.destroy_node()
         rclpy.try_shutdown()
